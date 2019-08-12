@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 
 using Android.App;
@@ -27,11 +28,16 @@ namespace Chat.Droid
             var nuevo = FirebaseInstanceId.Instance.Token;
             Log.Debug(TAG, "nuevo token: " + nuevo);
             SendRegistrationToServer(nuevo);
+
+             
         }
 
         void SendRegistrationToServer(string token)
         {
             //registro al servidor
+         
+
         }
+        
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Firebase.Database;
 using Firebase.Database.Query;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,10 +35,10 @@ namespace Chat
                 new Room // formatea los datos
                 {
                     Key = item.Key,
-                    Name=User.UserName=="Conductor"? item.Object.Cliente:item.Object.Conductor,
+                    Name = User.UserName == "Conductor" ? item.Object.Cliente : item.Object.Conductor,
                     Conductor = item.Object.Conductor,
-                    Cliente= item.Object.Cliente,
-                    Activo= item.Object.Activo
+                    Cliente = item.Object.Cliente,
+                    Activo = item.Object.Activo
                 }
 
                        ).ToList(); // devuelve un iterable (List<Room>)
@@ -49,7 +52,7 @@ namespace Chat
             List<Room> salas = await getRoomList();
             foreach (var item in salas) // itera para buscar el chat rm
             {
-                if(item.Key== rm.Key) // una vez encontrado se marca la instancia como falso 
+                if (item.Key == rm.Key) // una vez encontrado se marca la instancia como falso 
                 {
                     rm.Activo = false;
                     // se actualiza la instancia en firebase
@@ -67,13 +70,15 @@ namespace Chat
 
         }
 
-       
+
 
         // guarda un mensaje dentro de una instancia de chat _room
         public async Task saveMessage(Chat _ch, string _room)
         {
             await fbClient.Child("ChatApp/" + _room + "/Message")
                     .PostAsync(_ch);
+
+            await envio();
         }
 
         //  obtiene la coleccion de mensajes dentro de una instancia de chat _roomKEY
@@ -84,6 +89,43 @@ namespace Chat
             return fbClient.Child("ChatApp/" + _roomKEY + "/Message")
                            .AsObservable<Chat>()
                            .AsObservableCollection<Chat>();
+        }
+
+
+        // envia el aviso
+        private async Task envio()
+        {
+
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://fcm.googleapis.com/fcm/send");
+
+            string jsonData = @"{
+""to"":""dj3vDWZscAE:APA91bF44CfT3KkES3LDBb3cyLjZHG6fBv7XAuaRRtUKMdhj_4_zfKW3uQTc3rcqST8e7CooIS2o-AaGoGS_JG1yNjngUJ5dKFAr0IZ-m-XMZePEXrPTCISTTFaF9y6TXoiLmALTn2sF"",
+""notification"":{
+""title"":""CheckthisMobile(title)"",
+""body"":""RichNotificationtesting(body)"",
+""mutable_content"":true,
+""sound"":""Tri-tone""
+}";
+            try
+            {
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "AIzaSyCg2fEqo5ooHEzJFSykeuRphu7eAYNtTSc");
+
+                HttpResponseMessage response = await client.PostAsync("https://fcm.googleapis.com/fcm/send", content);
+
+
+                var result = await response.Content.ReadAsStringAsync();
+
+            }
+            catch (Exception er)
+            {
+                var lb = er.ToString();
+                var js = "xs";
+            }
+
+
+
         }
     }
 }
