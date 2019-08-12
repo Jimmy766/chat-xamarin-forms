@@ -14,6 +14,7 @@ using Firebase.Iid;
 
 namespace Chat.Droid
 {
+    //servicio para los mensajes
     [Service]
     [IntentFilter(new[] { "com.google.firebase.INSTANCE_ID_EVENT" })]
     public class FirebaseService : FirebaseInstanceIdService
@@ -22,6 +23,7 @@ namespace Chat.Droid
 
         public override void OnTokenRefresh()
         {
+            // token generado por firebase
             var nuevo = FirebaseInstanceId.Instance.Token;
             Log.Debug(TAG, "nuevo token: " + nuevo);
             SendRegistrationToServer(nuevo);
@@ -29,7 +31,7 @@ namespace Chat.Droid
 
         void SendRegistrationToServer(string token)
         {
-            // Add custom implementation, as needed.
+            //registro al servidor
         }
     }
 }
