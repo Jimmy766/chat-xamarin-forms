@@ -39,5 +39,16 @@ namespace Chat
             get;
             set;
         }
+        public string TokenConductor
+        {
+            get;
+            set;
+        }
+        public string TokenCliente
+        {
+            get;
+            set;
+        }
+
     }
 }

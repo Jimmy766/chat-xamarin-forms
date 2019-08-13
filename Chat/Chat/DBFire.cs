@@ -24,11 +24,13 @@ namespace Chat
         {
             // conexion con firebase usando el link que proporciona
             fbClient = new FirebaseClient("https://chat-xamarin-forms.firebaseio.com/");
+            
         }
 
         // obtiene la lista de instancias de chat 
         public async Task<List<Room>> getRoomList()
         {
+            
             return (await fbClient
                 .Child("ChatApp") // "ChatApp es el nombre global de todas las instancias"
                 .OnceAsync<Room>()) // obtine la coleccion de forma asincrona
@@ -39,11 +41,27 @@ namespace Chat
                     Name = User.UserName == "Conductor" ? item.Object.Cliente : item.Object.Conductor,
                     Conductor = item.Object.Conductor,
                     Cliente = item.Object.Cliente,
-                    Activo = item.Object.Activo
+                    Activo = item.Object.Activo,
+                    TokenConductor=item.Object.TokenConductor,
+                    TokenCliente=item.Object.TokenCliente
                 }
 
                        ).ToList(); // devuelve un iterable (List<Room>)
 
+        }
+
+        public async Task guardarToken(string token)
+        {
+            // obtiene la lista de chats
+            List<Room> salas = await getRoomList();
+            foreach (var item in salas) 
+            {
+                string user = User.UserName == "Conductor" ? "TokenConductor" : "TokenCliente";
+                    // se actualiza la instancia en firebase
+               
+                await fbClient.Child("ChatApp").Child(item.Key).Child(user).PutAsync<string>(User.Token);
+                
+            }
         }
 
         // desactiva el chat rm.. 
@@ -66,6 +84,8 @@ namespace Chat
         // guarda una instancia de chat
         public async Task saveRoom(Room rm)
         {
+            rm.TokenCliente = rm.TokenConductor = "vacio";
+            User.guardarToken(User.Token);
             await fbClient.Child("ChatApp")
                     .PostAsync(rm);
 
@@ -78,8 +98,9 @@ namespace Chat
         {
             await fbClient.Child("ChatApp/" + _room + "/Message")
                     .PostAsync(_ch);
+            
+            await envio2(_room);
 
-            await envio();
         }
 
         //  obtiene la coleccion de mensajes dentro de una instancia de chat _roomKEY
@@ -128,9 +149,11 @@ namespace Chat
 
 
         }
-        public async Task envio2()
+        public async Task envio2(string conversacion)
         {
-            Mes mes = new Mes("dj3vDWZscAE:APA91bF44CfT3KkES3LDBb3cyLjZHG6fBv7XAuaRRtUKMdhj_4_zfKW3uQTc3rcqST8e7CooIS2o-AaGoGS_JG1yNjngUJ5dKFAr0IZ-m-XMZePEXrPTCISTTFaF9y6TXoiLmALTn2sF",
+            var con = fbClient.Child("ChatApp/" + conversacion);
+            string token = User.UserName == "Conductor" ? await con.Child("TokenCliente").OnceSingleAsync<string>(): await con.Child("TokenConductor").OnceSingleAsync<string>();
+            Mes mes = new Mes(token,
         new Noti("great", "yes"));
             string jsonData = JsonConvert.SerializeObject(mes);
             var client = new HttpClient();

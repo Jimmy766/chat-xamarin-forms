@@ -17,7 +17,15 @@ namespace Chat
 			}
 		}
 
+        public static string Token { get; set; }
 
+        public async static void guardarToken(string token)
+        {
+            
+            DBFire cliente = new DBFire();
+            await cliente.guardarToken(token);
+        }
+        
 		private User(){}
 
 	}

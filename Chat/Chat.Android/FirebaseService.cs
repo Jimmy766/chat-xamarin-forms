@@ -21,6 +21,7 @@ namespace Chat.Droid
     public class FirebaseService : FirebaseInstanceIdService
     {
         const string TAG = "FirebaseIIDService";
+        
 
         public override void OnTokenRefresh()
         {
@@ -32,11 +33,10 @@ namespace Chat.Droid
              
         }
 
-        void SendRegistrationToServer(string token)
+        public async void SendRegistrationToServer(string token)
         {
             //registro al servidor
-         
-
+            User.Token = token;
         }
         
     }
