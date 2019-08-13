@@ -1,4 +1,5 @@
-﻿using Firebase.Database;
+﻿using App2;
+using Firebase.Database;
 using Firebase.Database.Query;
 using Newtonsoft.Json;
 using System;
@@ -127,5 +128,34 @@ namespace Chat
 
 
         }
+        public async Task envio2()
+        {
+            Mes mes = new Mes("dj3vDWZscAE:APA91bF44CfT3KkES3LDBb3cyLjZHG6fBv7XAuaRRtUKMdhj_4_zfKW3uQTc3rcqST8e7CooIS2o-AaGoGS_JG1yNjngUJ5dKFAr0IZ-m-XMZePEXrPTCISTTFaF9y6TXoiLmALTn2sF",
+        new Noti("great", "yes"));
+            string jsonData = JsonConvert.SerializeObject(mes);
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://fcm.googleapis.com/fcm/send");
+
+
+            try
+            {
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=AIzaSyCg2fEqo5ooHEzJFSykeuRphu7eAYNtTSc");
+
+                HttpResponseMessage response = await client.PostAsync("https://fcm.googleapis.com/fcm/send", content);
+
+
+                var result = await response.Content.ReadAsStringAsync();
+
+            }
+            catch (Exception er)
+            {
+                var lb = er.ToString();
+                var js = "xs";
+            }
+
+        }
+
     }
 }
