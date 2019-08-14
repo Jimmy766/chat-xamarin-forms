@@ -63,7 +63,10 @@ namespace Chat
                 
             }
         }
-
+        public async Task<string> obtenerToken()
+        {
+            return (await getRoomList())[0].TokenConductor;
+        }
         // desactiva el chat rm.. 
         public async Task desactivar(Room rm)
         {
